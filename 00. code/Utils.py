@@ -113,6 +113,59 @@ def getChampRect(team:str, pos:str) -> tuple :
     else :
         raise KeyError("team 입력이 잘못되었습니다.\n['blue', 'red'] 중에 하나를 입력해주세요.")
     
+def getCSRect(team:str, pos:str) -> tuple :
+    """현재 팀과 라인의 CS 갯수를 얻기 위한 영역을 구한다.
+    
+    Parameters
+    ----------
+    team(str)
+        현재 팀 (blue/red)
+    pos(str)
+        현재 라인 (top/jug/mid/adc/sup)
+    
+    Raises
+    ----------
+    KeyError
+        팀이 잘못 입력된 경우
+    KeyError
+        라인이 잘못 입력된 경우
+    
+    Return
+    ----------
+    cs_rect(tuple)
+        CS가 위치한 영역
+    """
+    blue_cs_rect = Variables.cs_rect_blue
+    red_cs_rect = Variables.cs_rect_red
+    if team == "blue" or team == "b" :
+        if pos == "top" or pos == "t" :
+            return blue_cs_rect[0]
+        elif pos == "jug" or pos == "j" :
+            return blue_cs_rect[1]
+        elif pos == "mid" or pos == "m" :
+            return blue_cs_rect[2]
+        elif pos == "adc" or pos == "a" :
+            return blue_cs_rect[3]
+        elif pos == "sup" or pos == "s" :
+            return blue_cs_rect[4]
+        else :
+            raise KeyError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+    elif team == "red" or team == "r" :
+        if pos == "top" or pos == "t" :
+            return red_cs_rect[0]
+        elif pos == "jug" or pos == "j" :
+            return red_cs_rect[1]
+        elif pos == "mid" or pos == "m" :
+            return red_cs_rect[2]
+        elif pos == "adc" or pos == "a" :
+            return red_cs_rect[3]
+        elif pos == "sup" or pos == "s" :
+            return red_cs_rect[4]
+        else :
+            raise KeyError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+    else :
+        raise KeyError("team 입력이 잘못되었습니다.\n['blue', 'red'] 중에 하나를 입력해주세요.")
+        
 
 def ImageConvert(image_file:str, save_path:str, extension:str="jpg") -> None :
     """WEBP 형식의 이미지를 변환한다.
