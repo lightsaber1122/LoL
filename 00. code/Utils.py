@@ -1,4 +1,7 @@
-def ImageConvert(image_file, save_path, extension="jpg") :
+import cv2
+import numpy as np
+
+def ImageConvert(image_file:str, save_path:str, extension:str="jpg") -> None :
     """WEBP 형식의 이미지를 변환한다.
 
     Parameters
@@ -31,3 +34,24 @@ def ImageConvert(image_file, save_path, extension="jpg") :
     image = Image.open(image_file).convert("RGB")
     image.save(save_path + filename[:-5] + extension, img_format)
     print(f"파일이 저장되었습니다.\n파일 위치 : {save_path + filename[:-5] + extension}")
+    
+def ImageCrop(image:np.ndarray, rect:tuple or list) -> np.ndarray :
+    """이미지의 원하는 영역을 추출한다.
+    
+    Parameters
+    ----------
+    image(np.ndarray)
+        자르고자 하는 원본 이미지
+    rect(tuple or list)
+        이미지에서 자르고자 하는 영역
+        (x, y, w, h) 형태
+    
+    Return
+    ----------
+    crop_img(np.ndarray)
+        추출된 영역의 이미지
+    """
+    img = image.copy()
+    x, y, w, h = rect[0], rect[1], rect[2], rect[3]
+    crop_img = img[y:y+h, x:x+w]
+    return crop_img
