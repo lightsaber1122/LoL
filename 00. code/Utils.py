@@ -1,6 +1,18 @@
 import cv2
 import numpy as np
 
+def CheckRectPosition(image_path:str, rect:tuple or list, color:tuple, thickness:int) -> None :
+    image = np.fromfile(image_path, np.uint8)
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    
+    while True :
+        image = DrawRect(image, rect, color, thickness)
+        cv2.imshow("image", image)
+        k = cv2.waitKey(0)
+        if k == 27 :
+            break
+    cv2.destroyAllWindows()
+
 def DrawRect(image:np.ndarray, rect:tuple or list, color:tuple, thickness:int=2) -> np.ndarray :
     """이미지에 사각형을 그린다.
     
