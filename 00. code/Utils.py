@@ -1,7 +1,25 @@
 import cv2
 import numpy as np
 
-def CheckRectPosition(image_path:str, rect:tuple or list, color:tuple, thickness:int) -> None :
+def CheckRectPosition(image_path:str, rect:tuple or list, color:tuple, thickness:int=2) -> None :
+    """이미지 상에서의 구역 위치를 확인한다.
+    
+    Parameters
+    ----------
+    image_path(str)
+        원본 이미지
+    rect(tuple or list)
+        확인할 구역
+    color(tuple)
+        화면에 표시될 사각형 색상
+    thickness(int)
+        사각형의 두께 (default 2)
+        -1로 설정할 경우, 색상이 채워진 사각형 출력
+        
+    Return
+    ----------
+    None
+    """
     image = np.fromfile(image_path, np.uint8)
     image = cv2.imdecode(image, cv2.IMREAD_COLOR)
     
