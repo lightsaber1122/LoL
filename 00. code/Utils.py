@@ -12,6 +12,7 @@ def CheckRectPosition(image_path:str, rect:tuple or list, color:tuple, thickness
         확인할 구역
     color(tuple)
         화면에 표시될 사각형 색상
+        (B, G, R) 순으로 색상값(0-255) 입력
     thickness(int)
         사각형의 두께 (default 2)
         -1로 설정할 경우, 색상이 채워진 사각형 출력
