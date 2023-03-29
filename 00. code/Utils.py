@@ -221,3 +221,21 @@ def ImageCrop(image:np.ndarray, rect:tuple or list) -> np.ndarray :
     x, y, w, h = rect[0], rect[1], rect[2], rect[3]
     crop_img = img[y:y+h, x:x+w]
     return crop_img
+
+def ToInputImage(image:np.ndarray) -> np.ndarray :
+    """이미지를 모델에 입력할 수 있도록 변경한다.
+    
+    Parameter
+    ----------
+    image(np.ndarray)
+        모델에 입력할 이미지
+    
+    Return
+    ----------
+    img(np.ndarray)
+        모델에 맞게 변경된 이미지
+    """
+    img = image.copy()
+    img = np.float32(img) / 255.0
+    img = np.expand_dims(img, axis = 0)
+    return img
