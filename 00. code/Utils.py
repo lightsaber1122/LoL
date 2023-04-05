@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import Variables
+import time
 
 def CheckRectPosition(image_path:str, rect:tuple or list, color:tuple, thickness:int=2) -> None :
     """이미지 상에서의 구역 위치를 확인한다.
@@ -72,9 +73,9 @@ def getChampRect(team:str, pos:str) -> tuple :
     
     Raises
     ----------
-    KeyError
+    ValueError
         팀이 잘못 입력된 경우
-    KeyError
+    ValueError
         라인이 잘못 입력된 경우
     
     Return
@@ -96,7 +97,7 @@ def getChampRect(team:str, pos:str) -> tuple :
         elif pos == "sup" or pos == "s" :
             return blue_champ_rect[4]
         else :
-            raise KeyError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+            raise ValueError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
     elif team == "red" or team == "r" :
         if pos == "top" or pos == "t" :
             return red_champ_rect[0]
@@ -109,9 +110,9 @@ def getChampRect(team:str, pos:str) -> tuple :
         elif pos == "sup" or pos == "s" :
             return red_champ_rect[4]
         else :
-            raise KeyError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+            raise ValueError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
     else :
-        raise KeyError("team 입력이 잘못되었습니다.\n['blue', 'red'] 중에 하나를 입력해주세요.")
+        raise ValueError("team 입력이 잘못되었습니다.\n['blue', 'red'] 중에 하나를 입력해주세요.")
     
 def getCSRect(team:str, pos:str) -> tuple :
     """현재 팀과 라인의 CS 갯수를 얻기 위한 영역을 구한다.
@@ -125,9 +126,9 @@ def getCSRect(team:str, pos:str) -> tuple :
     
     Raises
     ----------
-    KeyError
+    ValueError
         팀이 잘못 입력된 경우
-    KeyError
+    ValueError
         라인이 잘못 입력된 경우
     
     Return
@@ -149,7 +150,7 @@ def getCSRect(team:str, pos:str) -> tuple :
         elif pos == "sup" or pos == "s" :
             return blue_cs_rect[4]
         else :
-            raise KeyError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+            raise ValueError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
     elif team == "red" or team == "r" :
         if pos == "top" or pos == "t" :
             return red_cs_rect[0]
@@ -162,9 +163,9 @@ def getCSRect(team:str, pos:str) -> tuple :
         elif pos == "sup" or pos == "s" :
             return red_cs_rect[4]
         else :
-            raise KeyError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+            raise ValueError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
     else :
-        raise KeyError("team 입력이 잘못되었습니다.\n['blue', 'red'] 중에 하나를 입력해주세요.")
+        raise ValueError("team 입력이 잘못되었습니다.\n['blue', 'red'] 중에 하나를 입력해주세요.")
         
 
 def ImageConvert(image_file:str, save_path:str, extension:str="jpg") -> None :
@@ -183,7 +184,7 @@ def ImageConvert(image_file:str, save_path:str, extension:str="jpg") -> None :
 
     Raise
     ----------
-    KeyError
+    ValueError
         extension에 지원되지 않는 형식을 입력한 경우
     """
     from PIL import Image
@@ -195,7 +196,7 @@ def ImageConvert(image_file:str, save_path:str, extension:str="jpg") -> None :
         extension = ".png"
         img_format = "png"
     else :
-        raise KeyError("확장자 입력을 확인해주세요.\n지원하는 확장자 :\n\t- jpg\n\t- png")
+        raise ValueError("확장자 입력을 확인해주세요.\n지원하는 확장자 :\n\t- jpg\n\t- png")
     filename = image_file.split("/")[-1]
     image = Image.open(image_file).convert("RGB")
     image.save(save_path + filename[:-5] + extension, img_format)
@@ -239,3 +240,36 @@ def ToInputImage(image:np.ndarray) -> np.ndarray :
     img = np.float32(img) / 255.0
     img = np.expand_dims(img, axis = 0)
     return img
+
+def WriteLog(sep:str, func:str or None, message:str) :
+    """콘솔창에 로그를 출력한다.
+    
+    Parameters
+    ----------
+    sep(str)
+        로그 구분자
+        로그의 의미를 나타내며, 다음 종류를 입력으로 함
+        - E : Error
+        - W : Warning
+        - I : Info
+        - D : Debug
+        - V : Verbose
+        - wtf : Assert
+    func(str or None)
+        현재 로그를 표시하는 함수명
+        입력값이 없을 경우 'System'으로 표기
+    message(str)
+        로그 내용
+    
+    Raise
+    ----------
+    ValueError
+        `sep`에 해당하지 않는 문자를 입력한 경우
+    """
+    sep_list = ["E", "W", "I", "D", "V", "WTF"]
+    if sep.upper() not in sep_list :
+        raise ValueError("로그 구분자를 확인해주세요.")
+    if func is None :
+        func = "System"
+    now = time.strftime("%y/%m/%d %X")
+    print(f"[{now}] {sep.upper()}/{func} {message}")
