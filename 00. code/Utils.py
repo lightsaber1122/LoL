@@ -223,6 +223,13 @@ def ImageCrop(image:np.ndarray, rect:tuple or list) -> np.ndarray :
     crop_img = img[y:y+h, x:x+w]
     return crop_img
 
+def RaiseError(error_type:str, func:str or None, message:str) :
+    error_list = ["AttributeError", "KeyError", "ValueError"]
+    if error_type not in error_list :
+        print(f"입력한 {error_type}은 Error 목록에 없습니다.")
+        return
+    WriteLog("e", func, f"{error_type}: {message}")
+
 def ToInputImage(image:np.ndarray) -> np.ndarray :
     """이미지를 모델에 입력할 수 있도록 변경한다.
     
