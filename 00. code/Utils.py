@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import Variables
 import time
+from termcolor import colored
 
 def CheckRectPosition(image_path:str, rect:tuple or list, color:tuple, thickness:int=2) -> None :
     """이미지 상에서의 구역 위치를 확인한다.
@@ -223,13 +224,6 @@ def ImageCrop(image:np.ndarray, rect:tuple or list) -> np.ndarray :
     crop_img = img[y:y+h, x:x+w]
     return crop_img
 
-def RaiseError(error_type:str, func:str or None, message:str) :
-    error_list = ["AttributeError", "KeyError", "ValueError"]
-    if error_type not in error_list :
-        print(f"입력한 {error_type}은 Error 목록에 없습니다.")
-        return
-    WriteLog("e", func, f"{error_type}: {message}")
-
 def ToInputImage(image:np.ndarray) -> np.ndarray :
     """이미지를 모델에 입력할 수 있도록 변경한다.
     
@@ -247,36 +241,3 @@ def ToInputImage(image:np.ndarray) -> np.ndarray :
     img = np.float32(img) / 255.0
     img = np.expand_dims(img, axis = 0)
     return img
-
-def WriteLog(sep:str, func:str or None, message:str) :
-    """콘솔창에 로그를 출력한다.
-    
-    Parameters
-    ----------
-    sep(str)
-        로그 구분자
-        로그의 의미를 나타내며, 다음 종류를 입력으로 함
-        - E : Error
-        - W : Warning
-        - I : Info
-        - D : Debug
-        - V : Verbose
-        - wtf : Assert
-    func(str or None)
-        현재 로그를 표시하는 함수명
-        입력값이 없을 경우 'System'으로 표기
-    message(str)
-        로그 내용
-    
-    Raise
-    ----------
-    ValueError
-        `sep`에 해당하지 않는 문자를 입력한 경우
-    """
-    sep_list = ["E", "W", "I", "D", "V", "WTF"]
-    if sep.upper() not in sep_list :
-        raise ValueError("로그 구분자를 확인해주세요.")
-    if func is None :
-        func = "System"
-    now = time.strftime("%y/%m/%d %X")
-    print(f"[{now}] {sep.upper()}/{func} {message}")
