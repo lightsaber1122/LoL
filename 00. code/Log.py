@@ -11,7 +11,7 @@ class Log() :
         if filename is None :
             self.filename = "System"
         else :
-            self.filename = filename
+            self.filename = filename.split("\\")[-1]
         
     def time(self) -> str :
         now = datetime.now()
