@@ -3,6 +3,7 @@ import inspect
 filename = inspect.getfile(inspect.currentframe())
 import numpy as np
 from Log import Log
+log = Log(filename)
 from tqdm import tqdm
 from Utils import CheckRectPosition, ImageCrop
 from Variables import status_window_rect
@@ -58,21 +59,20 @@ def SaveStatusWindowInVideo(video_path:str, save_path:str, freq:int=1, verbose:i
     None
     """
     TAG = "SaveStatusWindowInVideo"
-    Log = Log(filename)
     if verbose > 2 :
-        Log.e(TAG, "인수 verbose에는 [0, 1, 2]만 입력할 수 있습니다.")
+        log.e(TAG, "인수 verbose에는 [0, 1, 2]만 입력할 수 있습니다.")
     video = cv2.VideoCapture(video_path)
     if verbose == 1 or verbose == 2 :
-        Log.v(TAG, f"영상 : {video_path}")
+        log.v(TAG, f"영상 : {video_path}")
     count = 0
     
     if verbose == 1 :
         if video.isOpened() :
             fps = int(video.get(cv2.CAP_PROP_FPS))
-            Log.i(TAG, f"\t- fps : {fps}")
+            log.i(TAG, f"\t- fps : {fps}")
             width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
             height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            Log.v(TAG, f"\t- screen : {width} X {height}")
+            log.v(TAG, f"\t- screen : {width} X {height}")
             f_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
             times = divmod(f_count//fps, 60)
             hour = 0
@@ -80,7 +80,7 @@ def SaveStatusWindowInVideo(video_path:str, save_path:str, freq:int=1, verbose:i
             second = times[1]
             if times[0] > 59 :
                 hour, minute = divmod(times[0], 60)
-            Log.v(TAG, f"\t- length : {str(hour).zfill(2)}:{str(minute).zfill(2)}:{str(second).zfill(2)}")
+            log.v(TAG, f"\t- length : {str(hour).zfill(2)}:{str(minute).zfill(2)}:{str(second).zfill(2)}")
             
         else :
             return
@@ -98,15 +98,31 @@ def SaveStatusWindowInVideo(video_path:str, save_path:str, freq:int=1, verbose:i
                         cv2.imwrite(save_path + f"{str(count).zfill(4)}.jpg", status)
                         if verbose == 1 :
                             if count == 0 :
-                                Log.v(TAG, f"\n캡처본이 저장되었습니다. {save_path}{str(count).zfill(4)}.jpg")
+                                log.v(TAG, f"\n캡처본이 저장되었습니다. {save_path}{str(count).zfill(4)}.jpg")
                             else :
-                                Log.v(TAG, f"캡처본이 저장되었습니다. {save_path}{str(count).zfill(4)}.jpg")
+                                log.v(TAG, f"캡처본이 저장되었습니다. {save_path}{str(count).zfill(4)}.jpg")
                         count += 1
                     if k == 27 :
-                        Log.v(TAG, f"작업이 중단되었습니다. 마지막으로 저장된 파일 : {save_path}{str(count).zfill(4)}.jpg")
+                        log.v(TAG, f"작업이 중단되었습니다. 마지막으로 저장된 파일 : {save_path}{str(count).zfill(4)}.jpg")
                         break
                 except AttributeError :
-                    Log.v(TAG, "작업이 완료되었습니다.")
+                    log.v(TAG, "작업이 완료되었습니다.")
+                    break
+    else :
+        for i in range(f_count) :
+            if video.isOpened() :
+                _, frame = video.read()
+                try :
+                    status = ImageCrop(frame, status_window_rect)
+                    cv2.imshow("frame", frame)
+                    cv2.imshow("status", status)
+                    k = cv2.waitKey(fps)
+                    if(int(video.get(1)) % fps * freq == 0) :
+                        cv2.imwrite(save_path + f"{str(count).zfill(4)}.jpg", status)
+                        count += 1
+                    if k == 27 :
+                        break
+                except AttributeError :
                     break
     video.release()
     cv2.destroyAllWindows()
