@@ -1,8 +1,11 @@
 import cv2
+import inspect
+filename = inspect.getfile(inspect.currentframe())
+from Log import Log
+log = Log(filename)
 import numpy as np
-import Variables
-import time
 from termcolor import colored
+import Variables
 
 def CheckRectPosition(image_path:str, rect:tuple or list, color:tuple, thickness:int=2) -> None :
     """이미지 상에서의 구역 위치를 확인한다.
@@ -24,8 +27,11 @@ def CheckRectPosition(image_path:str, rect:tuple or list, color:tuple, thickness
     ----------
     None
     """
-    image = np.fromfile(image_path, np.uint8)
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    try :
+        image = np.fromfile(image_path, np.uint8)
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    except FileNotFoundError :
+        log.exception("CheckRectPosition", FileNotFoundError, f"{image_path}에서 파일을 불러올 수 없습니다.")
     
     while True :
         image = DrawRect(image, rect, color, thickness)
@@ -98,7 +104,7 @@ def getChampRect(team:str, pos:str) -> tuple :
         elif pos == "sup" or pos == "s" :
             return blue_champ_rect[4]
         else :
-            raise ValueError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+            log.exception("getChampRect", ValueError, "pos 입력이 잘못되었습니다.")
     elif team == "red" or team == "r" :
         if pos == "top" or pos == "t" :
             return red_champ_rect[0]
@@ -111,9 +117,9 @@ def getChampRect(team:str, pos:str) -> tuple :
         elif pos == "sup" or pos == "s" :
             return red_champ_rect[4]
         else :
-            raise ValueError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+            log.exception("getChampRect", ValueError, "pos 입력이 잘못되었습니다.")
     else :
-        raise ValueError("team 입력이 잘못되었습니다.\n['blue', 'red'] 중에 하나를 입력해주세요.")
+        log.exception("getChampRect", ValueError, "team 입력이 잘못되었습니다.")
     
 def getCSRect(team:str, pos:str) -> tuple :
     """현재 팀과 라인의 CS 갯수를 얻기 위한 영역을 구한다.
@@ -151,7 +157,7 @@ def getCSRect(team:str, pos:str) -> tuple :
         elif pos == "sup" or pos == "s" :
             return blue_cs_rect[4]
         else :
-            raise ValueError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+            log.exception("getCSRect", ValueError, "pos 입력이 잘못되었습니다.")
     elif team == "red" or team == "r" :
         if pos == "top" or pos == "t" :
             return red_cs_rect[0]
@@ -164,10 +170,9 @@ def getCSRect(team:str, pos:str) -> tuple :
         elif pos == "sup" or pos == "s" :
             return red_cs_rect[4]
         else :
-            raise ValueError("pos 입력이 잘못되었습니다.\n['top', 'jug', 'mid', 'adc', 'sup'] 중에 하나를 입력해주세요.")
+            log.exception("getCSRect", ValueError, "pos 입력이 잘못되었습니다.")
     else :
-        raise ValueError("team 입력이 잘못되었습니다.\n['blue', 'red'] 중에 하나를 입력해주세요.")
-        
+        log.exception("getCSRect", ValueError, "team 입력이 잘못되었습니다.")
 
 def ImageConvert(image_file:str, save_path:str, extension:str="jpg") -> None :
     """WEBP 형식의 이미지를 변환한다.
@@ -197,11 +202,14 @@ def ImageConvert(image_file:str, save_path:str, extension:str="jpg") -> None :
         extension = ".png"
         img_format = "png"
     else :
-        raise ValueError("확장자 입력을 확인해주세요.\n지원하는 확장자 :\n\t- jpg\n\t- png")
-    filename = image_file.split("/")[-1]
-    image = Image.open(image_file).convert("RGB")
-    image.save(save_path + filename[:-5] + extension, img_format)
-    print(f"파일이 저장되었습니다.\n파일 위치 : {save_path + filename[:-5] + extension}")
+        log.exception("ImageConvert", ValueError, "확장자 입력을 확인해주세요.")
+    file = image_file.split("/")[-1]
+    try :
+        image = Image.open(image_file).convert("RGB")
+    except FileNotFoundError :
+        log.exception("ImageConvert", FileNotFoundError, f"{image_file}을 불러올 수 없습니다.")
+    image.save(save_path + file[:-5] + extension, img_format)
+    log.i(f"파일이 저장되었습니다. {save_path + file[:-5] + extension}")
     
 def ImageCrop(image:np.ndarray, rect:tuple or list) -> np.ndarray :
     """이미지의 원하는 영역을 추출한다.
@@ -221,7 +229,10 @@ def ImageCrop(image:np.ndarray, rect:tuple or list) -> np.ndarray :
     """
     img = image.copy()
     x, y, w, h = rect[0], rect[1], rect[2], rect[3]
-    crop_img = img[y:y+h, x:x+w]
+    try :
+        crop_img = img[y:y+h, x:x+w]
+    except cv2.error :
+        log.exception("ImageCrop", IndexError, f"{rect}에 맞추어 이미지를 crop할 수 없습니다.")
     return crop_img
 
 def ToInputImage(image:np.ndarray) -> np.ndarray :
