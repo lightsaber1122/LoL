@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import cv2
+import inspect
+filename = inspect.getfile(inspect.currentframe())
 import json
+from Log import Log
+log = Log(filename)
 import numpy as np
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -88,7 +92,7 @@ def testGenerator(path:str) -> None :
             break
     cv2.destroyAllWindows()
     
-def Train(path:str, save_path:str, batch:int, input_dim:tuple, n_class:int, epoch:int) -> None :
+def Train(path:str, save_path:str, batch:int, input_dim:tuple, n_class:int, epoch:int, verbose:int = 0) -> None :
     """모델을 학습한다.
     
     Parameters
@@ -105,22 +109,54 @@ def Train(path:str, save_path:str, batch:int, input_dim:tuple, n_class:int, epoc
         분류할 클래스 갯수
     epoch(int)
         모델의 훈련 횟수
+    verbose(int)
+        현재 상태를 확인하기 위한 log 정보 단계
+        (default 0)
+        - 0 : None
+        - 1 : 자세히
+        - 2 : 간략히
     
     Return
     ----------
     None
     """
+    if verbose > 2 :
+        log.e("Train", "인수 verbose에는 [0, 1, 2]만 입력할 수 있습니다.")
+        return
+    log.i("Train", f"데이터 : {path}")
+    if verbose == 1 :
+        log.v("Train", f"\t- epoch : {epoch}")
+        log.v("Train", f"\t- batch : {batch}")
+        log.v("Train", f"\t- model input : {input_dim}")
+        log.v("Train", f"\t- model output : {n_class}")
+    elif verbose == 2 :
+        log.v("Train", f"\t- model input : {input_dim}")
+        log.v("Train", f"\t- model output : {n_class}")
+        
     train_data = tf.data.Dataset.from_generator(DataGenerator, (tf.float32, tf.int32),
                                                 (tf.TensorShape([input_dim[0], input_dim[1], input_dim[2]]), tf.TensorShape([])),
                                                 args = (path, ))
     train_data = train_data.batch(batch)
     train_data = train_data.shuffle(batch)
+    if verbose >= 1 :
+        log.v("Train", "데이터셋이 생성되었습니다.")
     
     model = buildModel(input_dim, n_class)
+    if verbose >= 1 :
+        log.v("Train", "모델이 생성되었습니다.")
     if n_class == 2 :
+        if verbose == 1 :
+            log.v("Train", "모델을 컴파일 합니다. optimizer = 'adam', loss = 'BinaryCrossentropy'")
         model.compile(optimizer = "adam", loss = "BinaryCrossentropy", metrics = ["accuracy"])
     else :
+        if verbose == 1 :
+            log.v("Train", "모델을 컴파일 합니다. optimizer = 'adam', loss = 'SparseCategoricalCrossentropy'")
         model.compile(optimizer = "adam", loss = "SparseCategoricalCrossentropy", metrics = ["accuracy"])
     
+    if verbose >= 1 :
+        log.v("Train", "모델 훈련을 시작합니다.")
     model.fit(train_data, epochs = epoch)
+    if verbose >= 1 :
+        log.v("Train", "모델 훈련이 완료되었습니다.")
     model.save(save_path + "Status_classification")
+    log.i("Train", f"모델이 저장되었습니다. {save_path}Status_classification")
