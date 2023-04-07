@@ -121,3 +121,15 @@ class Log() :
             self.e(TAG, f"[{error.__name__}] {error_message}")
         else :
             self.e(TAG, f"[ValueError] {error}는 정의되어있지 않습니다.", filename = "Log")
+            
+    def model(self, TAG:str, summary:str) -> None :
+        """모델 정보를 요약하고, log로 표시한다.
+        
+        Parameters
+        ----------
+        TAG(str)
+            현재 위치 및 함수명 등 발생 위치를 특정할 수 있는 태그
+        summary(str)
+            tensorflow에서 반환된 모델의 요약 정보
+        """
+        self.i(TAG, summary)
